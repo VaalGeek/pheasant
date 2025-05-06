@@ -1,0 +1,48 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^3.0.2",
+    "@nuxtjs/supabase": "^1.5.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "@types/convert-excel-to-json": "^1.7.4",
+    "@types/formidable": "^3.4.5",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pdfkit": "^0.13.9",
+    "@types/qrcode": "^1.5.5",
+    "@vite-pwa/nuxt": "^1.0.0",
+    "@vue/compiler-sfc": "^3.4.0",
+    "bcrypt": "^5.1.1",
+    "convert-excel-to-json": "^1.7.0",
+    "date-fns": "^4.1.0",
+    "firebase": "^11.6.0",
+    "firebase-admin": "^13.2.0",
+    "gsap": "^3.12.7",
+    "h3-formidable": "^1.0.0",
+    "mongoose": "^8.13.2",
+    "nodemailer": "^6.10.1",
+    "nuxt": "^3.16.2",
+    "otplib": "^12.0.1",
+    "pdfkit": "^0.17.0",
+    "qrcode": "^1.5.4",
+    "storyblok-js-client": "^6.10.11",
+    "thirty-two": "^1.0.2",
+    "vue": "^3.4.0",
+    "vue-router": "^4.5.0",
+    "vuetable-3": "^3.4.3",
+    "web-push": "^3.6.7",
+    "xml-js": "^1.6.11"
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72",
+  "devDependencies": {
+    "@types/otplib": "^10.0.0"
+  }
+}
