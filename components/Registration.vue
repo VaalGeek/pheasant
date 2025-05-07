@@ -55,9 +55,11 @@ const registerSchool = async () => {
     // 1. Register user in Supabase and get user object
     const user = await register(form.value.email, form.value.emis);
 
-    const userId = user?.id
-console.log(userId);
-return;
+    const userId = user?.id;
+
+    console.log(userId);
+    return;
+    
 
     if (!userId) throw new Error('Failed to get user ID from Supabase')
 

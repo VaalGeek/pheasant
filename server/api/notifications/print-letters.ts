@@ -72,15 +72,24 @@ export default defineEventHandler(async (event) => {
 
         // Letter content
         doc.fontSize(20).text(`Dear ${stakeholderName}, (${role})`, { align: 'left' });
-        // Prepare grade/class text
-        const gradeText = stakeholder.grade || '';
-        const classText = stakeholder.class || '';
-        const gradeClassText = `Grade: ${gradeText} | Class: ${classText}`;
 
-        // Manually align to right
-        doc.fontSize(12).font('Helvetica-BoldOblique').text(gradeClassText, {
-            align: 'right'
-        });
+        // Dynamic grade/class or staff group info
+        let roleInfoText = '';
+        if (role === 'Parent') {
+            const gradeText = stakeholder.grade || '';
+            const classText = stakeholder.class || '';
+            roleInfoText = `Grade: ${gradeText}${classText}`;
+        } else if (role === 'Staff') {
+            const groups = stakeholder.groups?.join(', ') || 'N/A';
+            roleInfoText = `Staff : ${groups}`;
+        }
+
+        if (roleInfoText) {
+            doc.fontSize(12).font('Helvetica-BoldOblique').text(roleInfoText, {
+                align: 'right'
+            });
+        }
+
         doc.moveDown();
         doc.fontSize(14).text(`We noticed you're not subscribed to school notifications.`);
         doc.moveDown().list([

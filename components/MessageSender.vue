@@ -130,18 +130,50 @@ const message = ref('')
 const sendType = ref<'notifications' | 'sms' | 'both'>('notifications')
 
 const selectedGroups = ref<string[]>([])
-const selectedGrades = ref<string[]>([])
-const selectedClasses = ref<string[]>([])
+const selectedGrades = ref<string[]>(['All'])
+const selectedClasses = ref<string[]>(['All'])
+
+const grades = computed(() => ['All', ...props.grades])
+const classes = computed(() => ['All', ...props.classes])
 const selectedStaffGroups = ref<string[]>([])
 
 
 
+
+function handleExclusiveAllSelection(selected: string[], list: Ref<string[]>) {
+    if (selected.includes('All') && selected.length > 1) {
+        list.value = ['All'] // Keep only "All"
+    } else if (!selected.includes('All') && list.value.includes('All')) {
+        list.value = selected.filter(item => item !== 'All') // Remove "All"
+    }
+}
+
+function normalizeAllSelection(newVal: string[], list: Ref<string[]>) {
+    // If selecting "All", keep only it
+    if (newVal.includes('All') && newVal.length > 1) {
+        list.value = ['All']
+    }
+    // If selecting other items while "All" is already selected, remove "All"
+    else if (!newVal.includes('All') && list.value.includes('All')) {
+        list.value = newVal.filter(item => item !== 'All')
+    }
+}
+
+watch(selectedGrades, (newVal) => {
+    normalizeAllSelection(newVal, selectedGrades)
+})
+
+watch(selectedClasses, (newVal) => {
+    normalizeAllSelection(newVal, selectedClasses)
+})
+
+
 const showGradeClassSelect = computed(() =>
-    selectedGroups.value.includes('parents') || selectedGroups.value.includes('learners')
+    selectedGroups.value.includes('Parents') || selectedGroups.value.includes('Learners')
 )
 
 const showStaffGroupSelect = computed(() =>
-    selectedGroups.value.includes('educators') || selectedGroups.value.includes('smt') || selectedGroups.value.includes('ps staff')
+    selectedGroups.value.includes('Educators') || selectedGroups.value.includes('SMT') || selectedGroups.value.includes('ps staff')
 )
 
 const isSending = ref(false)
@@ -165,7 +197,7 @@ const fetchTotals = async () => {
                 params: { group, schoolId }
             });
 
-            
+
             groupTotals.value[group] = {
                 messages: data.messages ?? 0,
                 notifications: data.notifications ?? 0
@@ -199,12 +231,13 @@ const sendMessage = async () => {
             classes: selectedClasses.value,
             staffGroups: selectedStaffGroups.value
         }
+      
 
         const response = await $fetch('/api/messages/send-announcement', {
             method: 'POST',
             body: payload
         })
-
+console.log()
         responseMessage.value = { type: 'success', text: response.message || 'Sent successfully!' }
 
         // Clear message after timeout

@@ -42,9 +42,17 @@ export default defineEventHandler(async (event) => {
         }
 
         const queryConditions: Record<string, any>[] = [{ groups: { $in: groups } }]
-        if (grades.length) queryConditions.push({ grade: { $in: grades } })
-        if (classes.length) queryConditions.push({ class: { $in: classes } })
-        if (staffGroups.length) queryConditions.push({ staffGroups: { $in: staffGroups } })
+        
+        if (grades.length && !grades.includes('All')) {
+            queryConditions.push({ grade: { $in: grades } })
+        }
+        if (classes.length && !classes.includes('All')) {
+            queryConditions.push({ class: { $in: classes } })
+        }
+        if (staffGroups.length && !staffGroups.includes('All')) {
+            queryConditions.push({ staffGroups: { $in: staffGroups } })
+        }
+        
 
         const stakeholders = await Stakeholder.find(
             { $or: queryConditions },

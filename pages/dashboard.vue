@@ -97,11 +97,11 @@ if (typeof userId === 'string') {
 
         schoolId.value = schoolDetails.value._id;
 
-       
+    
 
         // Transform grades and classes
          grades.value = schoolDetails.value.grades.map((grade:any) => ({
-            label: `Grade ${parseInt(grade, 10)}`, // e.g., '08' → 8 → 'Grade 8'
+            label: `${parseInt(grade, 10)}`, // e.g., '08' → 8 → 'Grade 8'
             value: parseInt(grade, 10).toString()
         }));
 

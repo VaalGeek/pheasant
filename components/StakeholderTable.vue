@@ -170,7 +170,7 @@ async function handleFileUpload(event: Event) {
     if (props.schoolId) {
         formData.append('schoolId', props.schoolId)
     }
-    
+
 
     const endpoint = props.role === 'Parent'
         ? '/api/stakeholders/upload-parent'
@@ -196,7 +196,7 @@ function triggerFileInput() {
 
 <template>
     <div v-if="isUploading" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <span class="text-white text-lg">Uploading Parents...</span>
+        <span class="text-white text-lg">Uploading...</span>
     </div>
 
     <div class="space-y-4">
@@ -210,7 +210,7 @@ function triggerFileInput() {
                     <div class="flex items-center gap-2 relative group">
                         <UButton @click="triggerFileInput" label="Upload Excel" icon="i-heroicons-cloud-arrow-up" />
 
-                        <div class="relative">
+                        <div class="relative group">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5 text-gray-500 hover:text-gray-700 cursor-pointer" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -219,18 +219,30 @@ function triggerFileInput() {
                             </svg>
 
                             <div
-                                class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-72 bg-gray-800 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <p class="font-semibold mb-1">To Update Parents follow the following steps:</p>
+                                class="absolute left-1/2 z-10 w-72 -translate-x-1/2 top-8 hidden group-hover:block bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 border dark:border-gray-700 rounded-lg shadow-lg p-4">
+                                <p class="font-semibold mb-1">To Update {{ props.role }} follow the following steps:</p>
                                 <ol class="list-decimal list-inside space-y-1">
                                     <li>Go to SA SAMS</li>
-                                    <li>Click on menu Item 3 → 3.1 → <span
-                                            class="font-bold text-green-400">3.1.13</span></li>
-                                    <li>In 3.1.13 click on Show All and click on Export Button</li>
-                                    <li>Save (Open) the export file on desktop inside a folder you will remember</li>
-                                    <li>Come back here and click on Upload Parents Excel</li>
+                                    <template v-if="props.role === 'Parent'">
+                                        <li>
+                                            Click on menu Item 3 → 3.1 →
+                                            <span class="font-bold text-green-400">3.1.13</span>
+                                        </li>
+                                        <li>In 3.1.13 click on Show All and click on Export Button</li>
+                                        <li>Save (Open) the export file on desktop inside a folder you will remember
+                                        </li>
+                                        <li>Come back here and click on Upload Parents Excel</li>
+                                    </template>
+                                    <template v-else-if="props.role === 'Staff'">
+                                        <li>Click on HR <span class="font-bold text-green-400">3.1.13</span></li>
+                                        <li>HR Listing</li>
+                                        <li>Select only mobile from the left field</li>
+                                        <li>Click View All and Export</li>
+                                    </template>
                                 </ol>
                             </div>
                         </div>
+
                     </div>
 
                 </div>
