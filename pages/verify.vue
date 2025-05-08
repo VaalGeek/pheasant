@@ -173,10 +173,11 @@ async function verifyStakeholder() {
 
   try {
     let fcmToken: string | undefined
+    
     if ('Notification' in window && Notification.permission !== 'granted') {
       await Notification.requestPermission()
     }
-
+    
     try {
       fcmToken = await getToken($messaging, { vapidKey: config.public.VAPID_KEY })
     } catch (tokenErr) {

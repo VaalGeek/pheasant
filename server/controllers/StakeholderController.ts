@@ -135,9 +135,10 @@ export async function uploadStakeholders(entries: any[], schoolId: string) {
 }
 
 
-export async function fetchByRole(role: string) {
+export async function fetchByRole(role: string,schoolId) {
   return await Stakeholder.find({
     role,
+    schoolId,
     name: { $exists: true, $ne: '' },
     surname: { $exists: true, $ne: '' }
   })
@@ -235,93 +236,73 @@ export async function verify({
   stakeholderId?: string
   email?: string
   mobile?: string
-  fcmToken: string
+  fcmToken?: string
 }) {
-  if (!fcmToken) {
-    throw new Error('FCM token is required')
-  }
-
-  const normalizedEmail = email?.toLowerCase()
-  const trimmedMobile = mobile?.trim()
-
-  // Case: refresh FCM token later (no stakeholderId)
-  if (!stakeholderId && normalizedEmail && trimmedMobile) {
-    const stakeholder = await Stakeholder.findOne({
-      email: normalizedEmail,
-      cell: { $in: [trimmedMobile] },
-      verified: true
-    })
-
-    if (!stakeholder) {
-      throw new Error('Matching verified stakeholder not found')
-    }
-
-    if (stakeholder.fcmToken === fcmToken) {
-      return {
-        success: true,
-        _id: stakeholder._id,
-        firstTime: false,
-        message: 'FCM token is already up to date'
-      }
-    }
-
-    stakeholder.fcmToken = fcmToken
-    await stakeholder.save()
-
-    return {
-      success: true,
-      _id: stakeholder._id,
-      firstTime: false,
-      message: 'Stakeholder FCM token updated without stakeholderId'
-    }
-  }
-
-  // Require all fields for first-time verification
-  if (!stakeholderId || !normalizedEmail || !trimmedMobile) {
-    throw new Error('stakeholderId, email, mobile, and fcmToken are required for initial verification')
+  if (!stakeholderId) {
+    throw new Error('stakeholderId is required')
   }
 
   const stakeholder = await Stakeholder.findById(stakeholderId)
-
   if (!stakeholder) {
     throw new Error('Stakeholder not found')
   }
 
-  // First-time verification
-  if (!stakeholder.fcmToken && stakeholder.verified === false) {
-    stakeholder.email = normalizedEmail
-    stakeholder.cell = [trimmedMobile]
-    stakeholder.fcmToken = fcmToken
+  const normalizedEmail = email?.toLowerCase().trim()
+  const trimmedMobile = mobile?.trim()
+
+  // Case 1: First-time verification (no fcmToken yet in DB)
+  if (!stakeholder.fcmToken) {
     stakeholder.verified = true
+    stakeholder.fcmToken = fcmToken
+    
+    // Optional: store email/mobile only if not already set
+    if (normalizedEmail && !stakeholder.email) {
+      stakeholder.email = normalizedEmail
+    }
+
+    if (trimmedMobile && (!stakeholder.cell || stakeholder.cell.length === 0)) {
+      stakeholder.cell = [trimmedMobile]
+    }
+
+    // Save without requiring input token
     await stakeholder.save()
 
     return {
       success: true,
       _id: stakeholder._id,
       firstTime: true,
-      message: 'Stakeholder verified and registered for notifications'
+      message: 'Stakeholder verified (token can be registered later)'
     }
   }
 
-  // Subsequent verification
-  if (
-    stakeholder.verified === true &&
-    stakeholder.email === normalizedEmail &&
-    stakeholder.cell?.includes(trimmedMobile)
-  ) {
-    stakeholder.fcmToken = fcmToken
-    await stakeholder.save()
-
-    return {
-      success: true,
-      _id: stakeholder._id,
-      firstTime: false,
-      message: 'Stakeholder FCM token updated successfully'
-    }
+  // Case 2: Subsequent verification — validate and update token if necessary
+  if (!normalizedEmail || !trimmedMobile || !fcmToken) {
+    throw new Error('email, mobile, and fcmToken are required for token update')
   }
 
-  throw new Error('Stakeholder data does not match')
+  if (stakeholder.verified !== true) {
+    throw new Error('Stakeholder has not completed first-time verification')
+  }
+
+  const emailMatches = stakeholder.email === normalizedEmail
+  const mobileMatches = stakeholder.cell?.includes(trimmedMobile)
+
+  if (!emailMatches || !mobileMatches) {
+    throw new Error('Email or mobile does not match existing record')
+  }
+
+  stakeholder.fcmToken = fcmToken
+  await stakeholder.save()
+
+  return {
+    success: true,
+    _id: stakeholder._id,
+    firstTime: false,
+    message: 'Verified successfully'
+  }
 }
+
+
 
 
 

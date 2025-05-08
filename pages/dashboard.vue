@@ -316,7 +316,9 @@ async function saveEvent() {
 async function fetchStakeholders(role: string) {
     try {
 
-        const res: any = await $fetch(`/api/stakeholders/fetchByRole?role=${role}`)
+        const res: any = await $fetch(`/api/stakeholders/fetchByRole?role=${role}&schoolId=${schoolId.value}`);
+
+        
         if (role === 'Parent') parentsData.value = res
         else if (role === 'Learner') learnersData.value = res
         else if (role === 'Staff') staffData.value = res

@@ -46,6 +46,6 @@ onMounted(async () => {
   <div>
     <div v-if="loading">Loading Announcements...</div>
     <div v-else-if="error">Failed to load Announcements.</div>
-    <Announcements v-else :items="announcements" source="dashboard" />
+    <Announcements v-else :items="announcements" :source="'public'" />
   </div>
 </template>
