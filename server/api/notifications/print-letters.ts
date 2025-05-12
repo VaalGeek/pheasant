@@ -7,7 +7,7 @@ import path from 'path';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const { role, details, filter } = body;
+    const { role, details, filter,schoolId } = body;
 
     if (!role) throw createError({ statusCode: 400, message: 'Role is required' });
 
@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const dbQuery: any = {
+        schoolId,
         role,
         $or: [{ fcmToken: { $exists: false } }, { fcmToken: "" }],
     };

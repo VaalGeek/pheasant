@@ -135,7 +135,7 @@ export async function uploadStakeholders(entries: any[], schoolId: string) {
 }
 
 
-export async function fetchByRole(role: string,schoolId) {
+export async function fetchByRole(role: string, schoolId: string) {
   return await Stakeholder.find({
     role,
     schoolId,
@@ -230,12 +230,12 @@ export async function fetchGradesClassesStaff(schoolId: string) {
 export async function verify({
   stakeholderId,
   email,
-  mobile,
+  cell,
   fcmToken
 }: {
   stakeholderId?: string
   email?: string
-  mobile?: string
+  cell?: string
   fcmToken?: string
 }) {
   if (!stakeholderId) {
@@ -248,23 +248,21 @@ export async function verify({
   }
 
   const normalizedEmail = email?.toLowerCase().trim()
-  const trimmedMobile = mobile?.trim()
+  const trimmedMobile = cell?.trim()
 
   // Case 1: First-time verification (no fcmToken yet in DB)
   if (!stakeholder.fcmToken) {
     stakeholder.verified = true
     stakeholder.fcmToken = fcmToken
-    
-    // Optional: store email/mobile only if not already set
-    if (normalizedEmail && !stakeholder.email) {
+
+    if (normalizedEmail) {
       stakeholder.email = normalizedEmail
     }
 
-    if (trimmedMobile && (!stakeholder.cell || stakeholder.cell.length === 0)) {
+    if (trimmedMobile) {
       stakeholder.cell = [trimmedMobile]
     }
 
-    // Save without requiring input token
     await stakeholder.save()
 
     return {
@@ -274,6 +272,7 @@ export async function verify({
       message: 'Stakeholder verified (token can be registered later)'
     }
   }
+
 
   // Case 2: Subsequent verification — validate and update token if necessary
   if (!normalizedEmail || !trimmedMobile || !fcmToken) {
@@ -338,9 +337,10 @@ export async function updateVerification({ _id, fcmToken }: { _id: string, fcmTo
   }
 }
 
-export async function fetchUnsubscribers() {
+export async function fetchUnsubscribers(schoolId:string) {
   // Base query for unsubscribed users with valid cell array
   const baseQuery = {
+    schoolId,
     verified: false,
     $or: [{ fcmToken: '' }, { fcmToken: null }]
   };
@@ -422,4 +422,43 @@ export async function assignGroup(stakeholders: any) {
     }
   }
 }
+
+
+
+export async function checkStakeholder({
+  email,
+  cell,
+  role
+}: {
+  email?: string
+  cell?: string
+  role?: string
+}) {
+  if (!role || (!email && !cell)) {
+    return { valid: false, message: 'Missing required fields' }
+  }
+
+  const normalizedEmail = email?.toLowerCase().trim()
+  const trimmedCell = cell?.trim()
+
+  const stakeholder = await Stakeholder.findOne({
+    role,
+    $or: [
+      { email: normalizedEmail },
+      { cell: trimmedCell },
+      { cell: { $in: [trimmedCell] } } // support array of cell numbers
+    ]
+  })
+
+  if (!stakeholder) {
+    return { valid: false, message: 'Stakeholder not found' }
+  }
+
+  return {
+    valid: true,
+    _id: stakeholder._id,
+    message: 'Stakeholder exists'
+  }
+}
+
 

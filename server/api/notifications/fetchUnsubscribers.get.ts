@@ -1,8 +1,9 @@
 import { fetchUnsubscribers } from "~/server/controllers/StakeholderController"
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  const {schoolId } = getQuery(event);
   try {
-    return await fetchUnsubscribers();
+    return await fetchUnsubscribers(schoolId?.toString()!);
   } catch (error) {
     console.error('Error fetching unsubscribers:', error);
     throw createError({

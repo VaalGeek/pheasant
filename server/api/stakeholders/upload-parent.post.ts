@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
       
       },
     }))
-    .slice(0, 2)
+    //.slice(0, 2)
   const results = await uploadStakeholders(formatted, schoolId)
   return { success: true, count: results.length }
 })

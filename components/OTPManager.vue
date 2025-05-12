@@ -190,6 +190,7 @@ const sendFilteredLetters = async (role: 'Parent' | 'Learner') => {
     const res: any = await $fetch(`/api/notifications/print-letters`, {
       method: 'POST',
       body: {
+        schoolId:props.school._id,
         role,
         details: schoolDetails,
         filter: {
@@ -216,7 +217,7 @@ const sendFilteredLetters = async (role: 'Parent' | 'Learner') => {
 
 const fetchUnsubscribers = async () => {
     loading.value = true
-    unsubscribed.value = await $fetch<any>('/api/notifications/fetchUnsubscribers')
+    unsubscribed.value = await $fetch<any>('/api/notifications/fetchUnsubscribers?schoolId='+props.school._id)
     loading.value = false
 }
 
@@ -227,6 +228,7 @@ const printLetters = async (role: Role) => {
 
     const payload: any = {
         role,
+        schoolId:props.school._id,
         details: {
             type: props.school.type,
             name: props.school.name,

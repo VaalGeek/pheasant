@@ -231,13 +231,13 @@ const sendMessage = async () => {
             classes: selectedClasses.value,
             staffGroups: selectedStaffGroups.value
         }
-      
+     
 
         const response = await $fetch('/api/messages/send-announcement', {
             method: 'POST',
             body: payload
         })
-console.log()
+
         responseMessage.value = { type: 'success', text: response.message || 'Sent successfully!' }
 
         // Clear message after timeout

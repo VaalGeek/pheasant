@@ -144,7 +144,8 @@ function alreadyInstalledClicked() {
 function confirmAlreadyInstalled(confirmed: boolean) {
   if (confirmed) {
     localStorage.setItem('isAppAdded', 'true')
-    manualDismiss.value = true
+    manualDismiss.value = true;
+    confirmAlreadyInstalled
   }
   showAlreadyInstalledConfirm.value = false
 }
@@ -166,30 +167,50 @@ async function triggerInstall() {
 }
 
 
+function isIOSInBrowser() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !window.matchMedia('(display-mode: standalone)').matches
+  )
+}
+
 async function verifyStakeholder() {
   loading.value = true
   error.value = ''
   message.value = ''
 
   try {
-    let fcmToken: string | undefined
-    
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      await Notification.requestPermission()
-    }
-    
-    try {
-      fcmToken = await getToken($messaging, { vapidKey: config.public.VAPID_KEY })
-    } catch (tokenErr) {
-      console.warn('FCM token fetch failed:', tokenErr)
+    let fcmToken: any
+    const { requestNotificationPermission, getFCMToken } = useFCM()
+    let isIOSBrowser = isIOSInBrowser()
+    //isIOSBrowser = true;
+    if (!isIOSBrowser) {
+
+      const permission = await requestNotificationPermission()
+      if (permission !== 'granted') {
+        throw new Error('Notification permission is required to continue.')
+      }
+
+      try {
+        fcmToken = await getFCMToken();
+        if (!fcmToken) throw new Error('FCM token not obtained.')
+      } catch (tokenErr) {
+        throw new Error('FCM Token Error:Could not verify your account. This could be caused by poor internet connection')
+      }
+    } else {
+      // iOS browser - defer real token
+      fcmToken = ''
     }
 
+
+
+    // Send verification
     const result: any = await $fetch('/api/stakeholders/verify', {
       method: 'POST',
       body: {
         stakeholderId: route.query.sid,
         email: email.value,
-        mobile: mobile.value,
+        cell: mobile.value,
         fcmToken
       }
     })
@@ -199,12 +220,17 @@ async function verifyStakeholder() {
     }
 
     localStorage.setItem('isStakeholder', 'true')
-    localStorage.setItem('fcmToken', fcmToken!)
-
+    localStorage.setItem('fcmToken', fcmToken)
     isVerified.value = true
-    message.value = 'You have been verified successfully.'
-    manualDismiss.value = false
-
+    message.value = 'You have been verified successfully.You can close this site, and open the app from home screen';
+    // Wait a bit before redirecting to the home page, giving user time to read
+   /* setTimeout(() => {
+      manualDismiss.value = false
+      router.push('/')
+    }, 3000) // 3 seconds delay
+   
+*/
+    // Prompt install if supported
     if (canInstall.value) {
       const installChoice = await promptInstall()
       if (installChoice?.outcome === 'accepted') {
@@ -212,13 +238,15 @@ async function verifyStakeholder() {
       }
     }
 
-    router.push('/')
+    //router.push('/')
   } catch (err: any) {
     error.value = err?.data?.message || err.message || 'Something went wrong.'
   } finally {
     loading.value = false
   }
 }
+
+
 </script>
 
 
