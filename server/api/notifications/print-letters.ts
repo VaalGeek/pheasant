@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
         doc.moveDown();
 
         // Letter content
-        doc.fontSize(20).text(`Dear ${stakeholderName}, (${role})`, { align: 'left' });
+        doc.fontSize(14).text(`Dear ${stakeholderName}, (${role})`, { align: 'left' });
 
         // Dynamic grade/class or staff group info
         let roleInfoText = '';
@@ -92,27 +92,31 @@ export default defineEventHandler(async (event) => {
         }
 
         doc.moveDown();
-        doc.fontSize(14).text(`We noticed you're not subscribed to school notifications.`);
-        doc.moveDown().list([
-            `✅ Important school announcements and updates`,
-            `✅ Term dates, public holidays, and event reminders`,
-            `✅ Invitations and reminders for parents' meetings`,
-            `✅ Academic results and performance reports`,
-            `✅ Newsletters with school highlights and achievements`,
-            `✅ Emergency alerts (such as school closures or urgent notices)`,
-            `✅ Extracurricular activity updates and sports schedules`,
-            `✅ Personalized messages from teachers and school leadership`,
-        ]);
+        doc.fontSize(12).text(
+    `Dear ${role}, please scan the QR code below to receive school messages and newsletters on your phone.`,
+    { align: 'justify' }
+);
+doc.moveDown();
+doc.text(` Before scanning, please ensure the following settings are enabled on your phone:`);
 
-        doc.moveDown().text(
-            `We highly encourage you to complete your subscription and stay connected with everything happening at the school. Your participation and engagement make a meaningful difference!`,
-            { align: 'justify' }
-        );
-        doc.moveDown();
-        doc.text(`To subscribe, scan the QR code below:`);
+doc.moveDown().text(` For **Android Users**:`);
+doc.moveDown().list([
+    `1. Go to Phone **Settings > Notifications > Chrome** and ensure **Allow Notifications** is turned ON.\n`,
+    `2. Open **Chrome**, tap the **3 dots (⋮)** at the top-right, go to **Settings > Site Settings > Notifications**, and ensure **"Sites can ask to send notifications"** is enabled.`,
+]);
+
+doc.moveDown().text(` For **iOS Users**:`);
+doc.moveDown().list([
+    `1. Go to Phone **Settings > Notifications > Chrome** and ensure notifications are allowed.\n`,
+    `2. Open **Chrome**, tap the **three dots (⋮)** at the bottom, go to **Settings > Content Settings > Notifications**, and ensure it's set to **Ask First**.`,
+]);
+
+doc.moveDown();
+doc.text(`Once done, scan the QR code below to complete your subscription:`);
+
         doc.moveDown();
         doc.image(qrImage, { fit: [150, 150], align: 'center' });
-        doc.moveDown();
+       
         doc.text(`Thank you!`, { align: 'left' });
     }
 

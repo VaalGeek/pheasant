@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const {
+            schoolId,
             title = 'Message',
             message,
             groups,
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
             })
         }
 
-        const queryConditions: Record<string, any>[] = [{ groups: { $in: groups } }]
+        const queryConditions: Record<string, any>[] = [{schoolId, groups: { $in: groups } }]
         
         if (grades.length && !grades.includes('All')) {
             queryConditions.push({ grade: { $in: grades } })
