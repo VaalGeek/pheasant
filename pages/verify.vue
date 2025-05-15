@@ -75,11 +75,16 @@
           class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50">
           {{ loading ? 'Verifying...' : 'Verify' }}
         </button>
+        <span @click="showDeviceModal = true" class="text-blue-600 hover:underline cursor-pointer font-medium">
+          View Instructions
+        </span>
       </form>
 
       <p v-if="message" class="text-center text-sm text-green-600">{{ message }}</p>
       <p v-if="error" class="text-center text-sm text-red-600">{{ error }}</p>
     </div>
+    <DeviceInstructionModal v-if="showDeviceModal" @dismiss="showDeviceModal = false" />
+
   </div>
 </template>
 
@@ -97,6 +102,7 @@ const route = useRoute()
 const router = useRouter()
 const { $messaging } = useNuxtApp()
 const config = useRuntimeConfig()
+const showDeviceModal = ref(true) // default to true
 
 const email = ref('')
 const mobile = ref('')
@@ -224,12 +230,12 @@ async function verifyStakeholder() {
     isVerified.value = true
     message.value = 'You have been verified successfully.You can close this site, and open the app from home screen';
     // Wait a bit before redirecting to the home page, giving user time to read
-   /* setTimeout(() => {
-      manualDismiss.value = false
-      router.push('/')
-    }, 3000) // 3 seconds delay
-   
-*/
+    /* setTimeout(() => {
+       manualDismiss.value = false
+       router.push('/')
+     }, 3000) // 3 seconds delay
+    
+ */
     // Prompt install if supported
     if (canInstall.value) {
       const installChoice = await promptInstall()
